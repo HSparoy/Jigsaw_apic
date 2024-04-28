@@ -1,0 +1,132 @@
+MODULE STA
+    PERS robtarget PuzzlePiece := [[-94.112987927,-686.998906287,7.776577295],[0.002459631,0.709566413,-0.704629918,0.002476864],[-1,-1,-1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget PuzzlePiece_next_pos :=[[307.77,-684.688,5.79501],[0.00349063,0.999988,0.00349063,0.000012185],[-1,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget CameraPos := [[-292.04,-890.24,7.83981],[0.00349063,0.999988,0.00349063,0.000012185],[-2,-1,-1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget Solving_pos:= [[-94.112987927,-686.998906287,7.776577295],[0.003490629,0.000012186,-0.003490629,-0.999987815],[-1,-1,-1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget PuzzlePiece_1_pos := [[307.27348193,-884.196655493,9.172829984],[0.003490629,0.000012186,-0.003490629,-0.999987815],[-1,-1,-1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget PuzzlePiece_2_pos := [[306.575373144,-784.201529289,8.474704183],[0.003490629,0.000012186,-0.003490629,-0.999987815],[-1,-1,-1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget PuzzlePiece_3_pos := [[305.877264358,-684.206403085,7.776578382],[0.003490629,0.000012186,-0.003490629,-0.999987815],[-1,-1,-1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget PuzzlePiece_4_pos := [[305.179155572,-584.211276881,7.078452581],[0.003490629,0.000012186,-0.003490629,-0.999987815],[-1,-1,-1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget PuzzlePiece_5_pos := [[304.481046786,-484.216150677,6.38032678],[0.003490629,0.000012186,-0.003490629,-0.999987815],[-1,-1,-1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget PuzzlePiece_6_pos := [[303.782938,-384.221024473,5.682200979],[0.003490629,0.000012186,-0.003490629,-0.999987815],[-1,-1,-1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget PuzzlePiece_7_pos := [[303.084829214,-284.225898269,4.984075178],[0.003490629,0.000012186,-0.003490629,-0.999987815],[-1,-1,-1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget PuzzlePiece_8_pos := [[207.275918861,-884.894781292,9.172829713],[0.003490629,0.000012186,-0.003490629,-0.999987815],[-1,-1,-1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget PuzzlePiece_9_pos := [[206.577810075,-784.899655088,8.474703912],[0.003490629,0.000012186,-0.003490629,-0.999987815],[-1,-1,-1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget Solving_1_pos;
+    PERS robtarget Solving_2_pos;
+    PERS robtarget Solving_3_pos;
+    PERS robtarget Solving_4_pos;
+    PERS robtarget Solving_5_pos;
+    PERS robtarget Solving_6_pos;
+    PERS robtarget Solving_7_pos;
+    PERS robtarget Solving_8_pos;
+    PERS robtarget Solving_9_pos;
+
+    PERS tooldata toolCam:=[TRUE,[[-50,-35,250],[0.923879533,0,0,0.382683432]],[1,[0,0,1],[1,0,0,0],0,0,0]];
+    PERS tooldata toolSuctLong:=[TRUE,[[21.447,21.447,168.018],[0.881119571,-0.115075127,0.277815933,0.364971676]],[1,[0,0,1],[1,0,0,0],0,0,0]];
+    
+    VAR num angle_offset := 0.334454;
+    VAR num WPW :=0; ! What Python Wants
+    VAR num WRD :=0; ! What RAPID Does
+    PERS num first_run := 0;
+    PERS num second_run := 0;
+    PERS num count_first_run :=0;
+    PERS num count_second_run :=0;
+    PERS bool ok_signal := FALSE;
+    PERS num Offs_solv := 0;
+
+    
+    
+    PROC main()
+        
+        
+        !PathAccLim TRUE,\AccMax:=1,TRUE\DecelMax:=1;
+        !disable_Suction;
+        !Suction(FALSE);
+        !WaitUntil ABB_Scalable_IO_0_DI1=0;
+        !enable_Suction;
+        !SetDO ABB_Scalable_IO_0_DO1, 1;
+
+        
+        WHILE TRUE DO
+            first_run := 1;
+            IF first_run = 1 THEN
+                FOR i FROM 1 TO 9 DO
+                    Pick_puzzle;
+                    Place_puzzle;
+                    Hover_over_def_pos;
+                    count_first_run := count_first_run +1;
+                    first_run := 2;
+                    Waituntil ok_signal = TRUE;
+                    Pick_puzzle;
+                    Place_puzzle;
+                    IF count_first_run = 9 THEN
+                        first_run := 0;
+                    ELSE
+                        first_run := 3;
+                    ENDIF
+                ENDFOR
+            ENDIF
+            first_run := 0;
+            second_run := 2;
+            IF second_run = 2 THEN 
+                FOR i FROM 1 TO 9 DO
+                    count_second_run := count_second_run + 1;
+                    Pick_puzzle;
+                    Place_puzzle;
+                    second_run := 3;
+                    IF count_second_run = 9 THEN
+                        second_run := 0;
+                    ENDIF
+                ENDFOR
+            ENDIF
+            RETURN;                                      
+        ENDWHILE
+        
+        
+        
+ !       WHILE TRUE DO
+ !           WRD := 0; ! robot does nothing , waits
+ !           WaitUntil ( WPW <> 0) ;
+ !           WRD := WPW ;
+ !           WPW := 0;
+ !           TEST WRD
+ !               CASE 0: RETURN; ! Quit MainLoop
+ !               CASE 1: WaitTime 0.1;
+ !               CASE 2: Pick_puzzle;
+ !               CASE 3: Place_puzzle;
+ !               CASE 4: Hover_over_def_pos;
+ !           ENDTEST
+ !       ENDWHILE
+ ENDPROC
+    
+
+    
+    
+    
+    PROC Pick_puzzle()
+        CSSAct CSS_Z \StiffnessNonSoftDir:=50 \Stiffness:=10 \AllowMove;
+        MoveL Offs(PuzzlePiece, 0, 0, -20), v200, z20, toolSuctLong\WObj:=wobj0;
+        Suction(TRUE);
+        MoveL Offs(PuzzlePiece, 0, 0, -5), v10, fine, toolSuctLong\WObj:=wobj0;
+        WaitTime 2;
+        MoveL Offs(PuzzlePiece, 0, 0, -30), v50, z50, toolSuctLong\WObj:=wobj0;
+    ENDPROC
+
+
+    PROC Place_puzzle()
+        MoveL Offs(PuzzlePiece_next_pos, 0, 0, -20), v200, z20, toolSuctLong\WObj:=wobj0;
+        MoveL Offs(PuzzlePiece_next_pos, 0, 0, -5), v10, fine, toolSuctLong\WObj:=wobj0;
+        Suction(FALSE);
+        WaitTime 0.5;
+        MoveL Offs(PuzzlePiece_next_pos, 0, 0, -30), v100, z50, toolSuctLong\WObj:=wobj0;
+    ENDPROC
+
+
+    PROC Hover_over_def_pos()
+        MoveL Offs(CameraPos, 0, 0, -30), v200, z20, toolCam\WObj:=wobj0;
+    ENDPROC
+
+
+    
+ENDMODULE
